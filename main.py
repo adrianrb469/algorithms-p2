@@ -54,26 +54,37 @@ class LevenshteinDistance:
         return distance
 
     def levenshtein_distance_dynamic(self, str1, str2):
-        m = len(str1) + 1
-        n = len(str2) + 1
-        # Crear una matriz de tamaño (m x n) para almacenar los subproblemas
-        dp = [[0] * n for _ in range(m)] # La subestructura óptima es almacenar la distancia entre los prefijos de las cadenas
-
-        for i in range(m):
-            dp[i][0] = i # La distancia entre una cadena y una cadena vacía es la longitud de la cadena
-        for j in range(n):
-            dp[0][j] = j
-
-        for i in range(1, m):
-            for j in range(1, n):
-                # Caso 1: Si los caracteres en las posiciones i-1 son iguales, la distancia es la misma que si no los incluyéramos
-                if str1[i - 1] == str2[j - 1]:
-                    dp[i][j] = dp[i - 1][j - 1]
-                else:
-                    # Caso 2: Si los caracteres en las posiciones i-1 son diferentes, necesitamos encontrar el mínimo entre los tres posibles casos
-                    dp[i][j] = 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
-        # La solución al problema original se encuentra en la esquina inferior derecha de la matriz
-        return dp[m - 1][n - 1]
+            m = len(str1) + 1
+            n = len(str2) + 1
+            
+            # Crear una matriz de tamaño (m x n) para almacenar los subproblemas
+            # La matriz dp almacenará la distancia de Levenshtein entre los prefijos de las cadenas
+            dp = [[0] * n for _ in range(m)]
+            
+            # Inicializar la primera fila y la primera columna de la matriz dp
+            # dp[i][0] representa la distancia entre el prefijo de str1 de longitud i y una cadena vacía
+            # dp[0][j] representa la distancia entre una cadena vacía y el prefijo de str2 de longitud j
+            for i in range(m):
+                dp[i][0] = i
+            for j in range(n):
+                dp[0][j] = j
+            
+            # Llenar la matriz dp utilizando la subestructura óptima
+            for i in range(1, m):
+                for j in range(1, n):
+                    # Si los caracteres en las posiciones i-1 y j-1 son iguales,
+                    # la distancia no se incrementa y se toma el valor de la submatriz superior izquierda
+                    if str1[i - 1] == str2[j - 1]:
+                        dp[i][j] = dp[i - 1][j - 1]
+                    else:
+                        # Si los caracteres son diferentes, se toma el mínimo entre tres posibles operaciones:
+                        # 1. Insertar un carácter (dp[i][j-1] + 1)
+                        # 2. Eliminar un carácter (dp[i-1][j] + 1)
+                        # 3. Reemplazar un carácter (dp[i-1][j-1] + 1)
+                        dp[i][j] = 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+            
+            # La solución al problema original se encuentra en la esquina inferior derecha de la matriz dp
+            return dp[m - 1][n - 1]
     
     def time_algorithm(self, algorithm, str1, str2, iterations=10):
         start_time = time.time()
